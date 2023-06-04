@@ -170,6 +170,11 @@ void Pig::start()
     LogMessage("++ [%u] %s\n", idx, analyzer->get_source());
 
     swapper = new Swapper(SnortConfig::get_main_conf());
+    // C++11新标准中，可以简单通过使用 thread 库，来管理多线程。
+    // thread 库可以看做对不同平台多线程 API 的一层包装，因此使用新标准提供的线程库编写的程序是跨平台的
+    // 可调用（callable）类型：具有函数调用类型的实例。函数、lambda表达式、重载了()运算符的类的实例
+    // 默认会将传递的参数以拷贝的方式复制到线程空间，即使参数的类型是引用
+    // std::ref 可以将 *analyzer 的引用传入线程，而不是一个拷贝
     athread = new std::thread(std::ref(*analyzer), swapper, ++run_num);
 }
 
@@ -180,7 +185,11 @@ void Pig::stop()
 
     delete swapper;
     swapper = nullptr;
-
+    // join()/detach(): 管理线程生命周期，区别在于线程的结束和资源的回收
+    // detach() 会将线程的控制权交给操作系统，使该线程成为一个独立线程，不受主线程控制，也不会阻塞主线程
+    // 以 detach 方式让线程在后台运行时，可以在创建 thread 的实例后立即调用 detach，这样线程就会后 thread 的实例分离，即使出现了异常 thread 的实例被销毁，仍然能保证线程在后台运行。
+    // 但线程以 join 方式运行时，需要在主线程的合适位置调用 join 方法，如果调用join前出现了异常，thread 被销毁，线程就会被异常所终结，于是线程资源未被回收，导致内存泄漏。
+    // 为了避免异常将线程终结，或者由于某些原因，例如线程访问了局部变量，就要保证线程一定要在函数退出前完成，就要保证要在函数退出前调用 join
     athread->join();
     delete athread;
     athread = nullptr;
@@ -1024,6 +1033,7 @@ static void main_loop()
     {
         for (unsigned i = 0; i < max_pigs; i++)
         {
+            // 执行 pig 的 prep 函数，对 pig 对象的成员变量 Analyzer 进行初始化
             if (pigs[i].prep(SFDAQ::get_input_spec(SnortConfig::get_conf()->daq_config, i)))
                 swine++;
         }
@@ -1141,6 +1151,7 @@ int main(int argc, char* argv[])
 
     set_thread_type(STHREAD_TYPE_MAIN);
 
+    // 读取参数, 完成相关配置
     Snort::setup(argc, argv);
 
     if ( set_mode() )

@@ -38,6 +38,7 @@ class GHash;
 // declarations.
 //-------------------------------------------------------------------------
 
+// 端口表 ： 将规则按端口进行归类
 struct PortTable
 {
     /* turns on group optimization, better speed-but more memory

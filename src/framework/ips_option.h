@@ -86,6 +86,7 @@ public:
     virtual bool retry(Cursor&, const Cursor&) { return false; }
     virtual void action(Packet*) { }
 
+    // 枚举类型描述 规则检测中 evaluate 的评估结果
     enum EvalStatus { NO_MATCH, MATCH, NO_ALERT, FAILED_BIT };
     virtual EvalStatus eval(Cursor&, Packet*) { return MATCH; }
 

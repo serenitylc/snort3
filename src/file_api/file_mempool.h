@@ -35,6 +35,7 @@
 #define FILE_MEM_SUCCESS    0  // FIXIT-RC use bool
 #define FILE_MEM_FAIL      (-1)
 
+// 内存池管理：初始化、分配、释放、销毁、清空
 class FileMemPool
 {
 public:
@@ -72,8 +73,10 @@ private:
     void free_pools();
     int remove(CircularBuffer* cb, void* obj);
 
+    // 分配的连续内存空间
     void** datapool = nullptr; /* memory buffer */
     uint64_t total = 0;
+    // 使用链表管理内存
     CircularBuffer* free_list = nullptr;
     CircularBuffer* released_list = nullptr;
     size_t obj_size = 0;

@@ -45,12 +45,14 @@ struct TagData;
 struct sfip_var_t;
 
 /* same as the rule header FP list */
+// 规则选项匹配函数链表
 struct OptFpList
 {
     snort::IpsOption* ips_opt;
 
     int (* OptTestFunc)(void* option_data, class Cursor&, snort::Packet*);
 
+    // 解析规则选项时，使用next指针将所有的规则选项的匹配对象链在一起
     OptFpList* next;
 
     unsigned char isRelative;
@@ -80,12 +82,14 @@ struct OtnState
 /* function pointer list for rule head nodes */
 // FIXIT-L use bit mask to determine what header checks to do
 // cheaper than traversing a list and uses much less memory
+// 规则头匹配函数链表
 struct RuleFpList
 {
     /* context data for this test */
     void* context = nullptr;
 
     /* rule check function pointer */
+    // 规则头匹配的函数指针，遍历链表实现整个规则头的匹配。参数：数据包，规则头对象， 下一个需要匹配的对象
     int (* RuleHeadFunc)(snort::Packet*, RuleTreeNode*, RuleFpList*, int) = nullptr;
 
     /* pointer to the next rule function node */
@@ -107,6 +111,7 @@ struct RuleHeader
 
 // one of these per rule per policy
 // represents head part of rule
+// 存储规则的头信息
 struct RuleTreeNode
 {
     using Flag = uint8_t;
@@ -119,13 +124,18 @@ struct RuleTreeNode
     static constexpr Flag ANY_DST_IP    = 0x40;
     static constexpr Flag USER_MODE     = 0x80;
 
+    // 规则头的匹配函数
     RuleFpList* rule_func = nullptr; /* match functions.. (Bidirectional etc.. ) */
     RuleHeader* header = nullptr;
 
+    // 规则头中的 源 IP 组
     sfip_var_t* sip = nullptr;
+    // 目的 IP 组
     sfip_var_t* dip = nullptr;
 
+    // 源端口组
     PortObject* src_portobject = nullptr;
+    // 目的端口组
     PortObject* dst_portobject = nullptr;
 
     struct ListHead* listhead = nullptr;
@@ -164,6 +174,7 @@ struct RuleTreeNode
 
 // one of these for each rule
 // represents body part of rule
+// 存储规则选项的信息
 struct OptTreeNode
 {
     ~OptTreeNode();
@@ -183,7 +194,9 @@ struct OptTreeNode
     char* soid = nullptr;
 
     /* plugin/detection functions go here */
+    // 检测函数链表
     OptFpList* opt_func = nullptr;
+    // 日志输出链表
     OutputSet* outputFuncs = nullptr; /* per sid enabled output functions */
     snort::IpsOption* agent = nullptr;
 
@@ -194,6 +207,7 @@ struct OptTreeNode
     TagData* tag = nullptr;
 
     // ptr to list of RTNs (head part); indexed by policyId
+    // 指向 RTN 链表头，按照 policyId 索引
     RuleTreeNode** proto_nodes = nullptr;
     OtnState* state = nullptr;
 

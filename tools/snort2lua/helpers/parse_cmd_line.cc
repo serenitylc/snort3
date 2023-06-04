@@ -331,6 +331,7 @@ static void dont_convert_max_session(const char* /*key*/, const char* /*val*/)
     exit(0);
 }
 
+// 命令行基本选项
 static ConfigFunc basic_opts[] =
 {
     { "?", print_args, "",
@@ -443,6 +444,7 @@ static ConfigFunc basic_opts[] =
     { nullptr, nullptr, "", nullptr, }
 };
 
+// 解析命令行
 bool parse_cmd_line(int argc, char* argv[])
 {
     ArgList al(argc, argv);

@@ -211,6 +211,7 @@ static_assert(CODEC_ENCAP_LAYER == (CODEC_UNSURE_ENCAP | CODEC_SAVE_LAYER),
 //-------------------------------------------------------------------------
 // Encode/Decode functions
 //-------------------------------------------------------------------------
+// 对数据包进行解码
 void PacketManager::decode(
     Packet* p, const DAQ_PktHdr_t* pkthdr, const uint8_t* pkt, uint32_t pktlen, bool cooked, bool retry)
 {

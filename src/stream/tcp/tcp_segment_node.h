@@ -83,6 +83,11 @@ public:
     uint8_t data[1];
 };
 
+/* snort 重组策略, 即 Sturges/Novak 模型 《Target-Based Fragmentation Reassembly》
+ * 流重组分为重组和排出（flush）两个阶段。
+ * 重组阶段，根据重组策略将报文段裁剪后插入 StreamTracker->seglist 链表中；
+ * 排出阶段，根据 flush 策略对 seglist 链表中的报文进行排出。
+ */
 class TcpSegmentList
 {
 public:

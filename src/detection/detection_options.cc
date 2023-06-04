@@ -506,6 +506,10 @@ int detection_option_node_evaluate(
                         break;
                     }
                 }
+                /* 使用相关规则 node 的 evaluate 函数对包信息进行检测和处理
+                 * evaluate 函数是先前规则解析到对应插件的检测功能函数
+                 * 调用完成后，会返回相应的检测结果，由 EvalStatus 枚举类型描述
+                 */
                 rval = node->evaluate(node->option_data, cursor, p);
             }
             break;

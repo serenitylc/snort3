@@ -74,6 +74,7 @@ PORT_RULE_MAP* prmNewMap()
 **    what to match against.
 **
 */
+// 根据端口映射来选择匹配的规则组
 static int prmFindRuleGroup(
     PORT_RULE_MAP* p,
     int dport,

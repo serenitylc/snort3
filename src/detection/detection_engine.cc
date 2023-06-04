@@ -582,14 +582,16 @@ void DetectionEngine::wait_for_context()
 //--------------------------------------------------------------------------
 // detection / inspection
 //--------------------------------------------------------------------------
-
+// 实现规则匹配
 bool DetectionEngine::detect(Packet* p, bool offload_ok)
 {
     assert(p);
 
+    // api 有效性判断
     if ( !p->ptrs.ip_api.is_valid() )
         return false;
 
+    // 当前包已经匹配到一条 pass 规则
     if ( p->packet_flags & PKT_PASS_RULE )
         return false;
 
@@ -601,7 +603,7 @@ bool DetectionEngine::detect(Packet* p, bool offload_ok)
     // on the entire packet. Instead, we should only perform detect on that layer!!
     switch ( p->type() )
     {
-    case PktType::PDU:
+    case PktType::PDU:  // Protocol Data Unit
     case PktType::IP:
     case PktType::TCP:
     case PktType::UDP:
@@ -611,7 +613,7 @@ bool DetectionEngine::detect(Packet* p, bool offload_ok)
         if ( offload_ok and p->flow )
             return offload(p);
 
-        fp_full(p);
+        fp_full(p);  // 开始进行匹配
         break;
 
     default:
@@ -620,12 +622,14 @@ bool DetectionEngine::detect(Packet* p, bool offload_ok)
     return false;
 }
 
+// 实际执行数据包检测的函数
 bool DetectionEngine::inspect(Packet* p)
 {
     bool inspected = false;
     {
         PacketLatency::Context pkt_latency_ctx { p };
 
+        // 如果包解析失败，就将其 drop
         if ( p->ptrs.decode_flags & DECODE_ERR_FLAGS )
         {
             if ( p->context->conf->ips_inline_mode() and
@@ -639,6 +643,7 @@ bool DetectionEngine::inspect(Packet* p)
         {
             enable_content(p);
 
+            // 预处理函数，实现流重组，协议识别和解析
             InspectorManager::execute(p);
             inspected = true;
 
@@ -647,6 +652,7 @@ bool DetectionEngine::inspect(Packet* p)
                 if ( PacketTracer::is_daq_activated() )
                     PacketTracer::pt_timer_start();
 
+                // 实际的检测功能
                 if ( detect(p, true) )
                     return false; // don't finish out offloaded packets
             }

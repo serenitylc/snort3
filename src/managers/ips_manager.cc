@@ -283,6 +283,7 @@ IpsOption* IpsManager::option_end(
     current_module = nullptr;
     current_params = nullptr;
 
+    // 根据 key 获取 option 对象，然后建立对应的 IpsOption 对象
     Option* opt = get_opt(key);
     assert(opt);
 
@@ -313,6 +314,9 @@ IpsOption* IpsManager::option_end(
         ips = (IpsOption*)prev;
     }
 
+    /* 将 IpsOption 的 eval 函数，加入对应规则选项节点 otn 的 opt_func 列表中，
+     * 这里的 eval 函数对应着相应检测功能的调用入口，用于最后规则检测功能的绑定调用
+     */
     OptFpList* fpl = AddOptFuncToList(fp_eval_option, otn);
     fpl->ips_opt = ips;
     fpl->type = ips->get_type();

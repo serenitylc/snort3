@@ -288,6 +288,7 @@ ListHead* get_rule_list(SnortConfig* sc, const char* s)
     return p ? p->RuleList : nullptr;
 }
 
+// 解析规则文件
 void parse_rules_file(SnortConfig* sc, const char* fname)
 {
     if ( !fname )

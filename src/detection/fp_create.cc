@@ -1073,6 +1073,7 @@ static void fpCreatePortObject2RuleGroup(SnortConfig* sc, PortObject2* po, PortO
 /*
  *  Create the port groups for this port table
  */
+// 创建端口组
 static void fpCreatePortTableRuleGroups(SnortConfig* sc, PortTable* p, PortObject2* poaa)
 {
     int cnt = 1;
@@ -1540,6 +1541,7 @@ static unsigned can_build_mt(FastPatternConfig* fp)
 *  Build Pattern Groups for 1st pass of content searching using
 *  multi-pattern search method.
 */
+// 规则优化–-快速匹配规则集：构建模式组，以实现多模匹配对首次通过内容的搜索
 int fpCreateFastPacketDetection(SnortConfig* sc)
 {
     assert(sc);
@@ -1566,6 +1568,7 @@ int fpCreateFastPacketDetection(SnortConfig* sc)
     if ( log_rule_group_details )
         LogMessage("Creating Port Groups....\n");
 
+    // 为端口表创建端口组对象
     fpCreateRuleGroups(sc, port_tables);
 
     if ( log_rule_group_details )
@@ -1574,6 +1577,7 @@ int fpCreateFastPacketDetection(SnortConfig* sc)
         LogMessage("Creating Rule Maps....\n");
     }
 
+    // 创建规则组映射
     fpCreateRuleMaps(sc, port_tables);
 
     if ( log_rule_group_details )
@@ -1582,6 +1586,7 @@ int fpCreateFastPacketDetection(SnortConfig* sc)
         LogMessage("Creating Service Based Rule Maps....\n");
     }
 
+    // 使用规则元数据选项服务参数构建基于服务的规则组
     fpCreateServiceRuleGroups(sc);
 
     if ( log_rule_group_details )

@@ -58,12 +58,15 @@ struct ListHead
 };
 
 // for top-level rule lists by type (alert, drop, etc.)
+// 规则链表建立（多维链表）  第一层：动作链表节点
 struct RuleListNode
 {
+    // 相同的动作构成的链表
     ListHead* RuleList;   /* The rule list associated with this node */
     Actions::Type mode;        /* the rule mode */
     unsigned evalIndex;        /* eval index for this rule set */
     char* name;           /* name of this rule list */
+    // 其他 type 构成的节点
     RuleListNode* next;   /* the next RuleListNode */
 };
 

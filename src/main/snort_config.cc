@@ -303,11 +303,13 @@ void SnortConfig::setup()
         thiszone = gmt2local(0);
 
     init_policies(this);
+    // 解析规则
     ParseRules(this);
 
     // Allocate evalOrder before calling the OrderRuleLists
     evalOrder = new int[Actions::get_max_types()]();
 
+    // 按类型（alert、drop等）排序，构建规则列表 RuleListNode
     OrderRuleLists(this);
 
     if ( rule_states )
@@ -323,6 +325,7 @@ void SnortConfig::setup()
     IpsManager::verify(this);
     ModuleManager::load_commands(policy_map->get_shell());
 
+    // 创建快速包检测引擎
     fpCreateFastPacketDetection(this);
 }
 

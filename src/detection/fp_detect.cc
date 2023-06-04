@@ -821,6 +821,7 @@ void MpseStash::process(IpsContext* context, MatchStore& store)
         debug_logf(detection_trace, TRACE_RULE_EVAL,
             static_cast<snort::IpsContext*>(context)->packet, "Processing pattern match #%d\n", ++i);
 
+        // 规则匹配
         rule_tree_match(context, it.user, it.tree, it.index, it.list);
     }
     pmqs.tot_inq_flush += store.size();
@@ -1116,9 +1117,12 @@ static inline void fpEvalHeaderTcp(Packet* p, FPTask task)
 
     RuleGroup* src = nullptr, * dst = nullptr, * any = nullptr;
 
+    // 首先根据端口信息（p->ptrs.dp目的端口 p->ptrs.sp源端口）等，获取到相应的 RuleGroup 对象（保存了相应端口的规则信息），赋值给src、dst、any变量
     if ( !prmFindRuleGroupTcp(p->context->conf->prmTcpRTNX, p->ptrs.dp, p->ptrs.sp, &src, &dst, &any) )
         return;
 
+    // 然后根据相应的 RuleGroup 的情况，分别进行处理
+    // 在目的RuleGroup中继续进行检测（作为对比：snort2里面是 PORT_GROUP* dst，只用了端口信息进行判别）
     if ( dst )
         fpEvalHeaderSW(dst, p, 0, task);
 
@@ -1286,6 +1290,7 @@ void fp_partial(Packet* p)
     c->searches.context = c;
     assert(!c->searches.items.size());
     print_pkt_info(p, "fast-patterns");
+    // 根据不同类型进行fp匹配
     fpEvalPacket(p, FPTask::FP);
 }
 
@@ -1323,7 +1328,9 @@ void fp_complete(Packet* p, bool search)
 
 void fp_full(Packet* p)
 {
+    // 快速模式匹配
     fp_partial(p);
+    // 完整匹配 
     fp_complete(p, true);
 }
 
@@ -1348,6 +1355,7 @@ static void fp_immediate(MpseGroup* mpg, Packet* p, const uint8_t* buf, unsigned
     {
         Profile mpse_profile(mpsePerfStats);
         int start_state = 0;
+        // 模式匹配引擎的匹配函数
         mpg->get_normal_mpse()->search(buf, len, rule_tree_queue, p->context, &start_state);
     }
     {

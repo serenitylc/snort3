@@ -96,6 +96,7 @@ static pid_t snort_main_thread_pid = 0;
 
 void Snort::init(int argc, char** argv)
 {
+    // 处理信号捕获的各种回调
     init_signals();
     ThreadConfig::init();
 
@@ -108,18 +109,28 @@ void Snort::init(int argc, char** argv)
     InitProtoNames();
     DataBus::init();
 
+    // 加载action模块，它实现了replace reject react等动作，通过给源发送RST数据包来达到断开链接等功能
     load_actions();
+    // 加载数据包解码模块，它实现了各种协议的解码，常见的如tcp ip udp icmp等，还有一些工控协议和gprs的协议，它这儿都有对应的插件
     load_codecs();
+    // 这里加载的插件比较少，只有file链接和tcp链接，文档中有提到，它用来和外部进行通信
     load_connectors();
+    // 加载规则相关的插件，实现一些检测功能，例如flags检查
     load_ips_options();
+    // 加载日志功能插件，日志的数据形式比较多样，包括文件，控制台输出，unixsock等
     load_loggers();
+    // 加载搜索引擎（ maybe 匹配包内容
     load_search_engines();
     load_policy_selectors();
+    // 加载流检查器，主要是 tcp ip udp 等流的处理
     load_stream_inspectors();
+    // 加载网络检查插件，这里包括扫描以及arp欺骗等行为的嗅探检测插件
     load_network_inspectors();
+    // 加载服务检查插件，包括的检查插件有http http2 ssl等    
     load_service_inspectors();
 
     snort_cmd_line_conf = parse_cmd_line(argc, argv);
+    // 对命令行输入的指令进行详细的解析 -c/-R等
     SnortConfig::set_conf(snort_cmd_line_conf);
 
     LogMessage("--------------------------------------------------\n");
@@ -133,6 +144,7 @@ void Snort::init(int argc, char** argv)
     SideChannelManager::pre_config_init();
 
     ScriptManager::load_scripts(snort_cmd_line_conf->script_paths);
+    // 加载额外的插件路径，它需要另外一个项目（snort_extra）的支持 
     PluginManager::load_plugins(snort_cmd_line_conf->plugin_path);
 
     /* load_plugins() must be called before init() so that
@@ -143,6 +155,7 @@ void Snort::init(int argc, char** argv)
     FileService::init();
 
     parser_init();
+    // 初始化配置，给一些配置项分配内存等   
     SnortConfig* sc = ParseSnortConf(snort_cmd_line_conf);
 
     /* Set the global snort_conf that will be used during run time */
@@ -175,6 +188,7 @@ void Snort::init(int argc, char** argv)
     if (sc->alert_before_pass())
         sc->rule_order = Actions::get_default_priorities(true);
 
+    // 规则加载的入口函数
     sc->setup();
 
     if ( !sc->attribute_hosts_file.empty() )
@@ -386,6 +400,7 @@ void Snort::setup(int argc, char* argv[])
     // will try to grab file descriptor 3 (if --enable-stdlog)
     OpenLogger();
 
+    // 完成初始化工作，主要是加载插件/配置文件/规则文件
     init(argc, argv);
     const SnortConfig* sc = SnortConfig::get_conf();
 

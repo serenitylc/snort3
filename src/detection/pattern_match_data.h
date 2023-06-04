@@ -37,6 +37,7 @@ struct PmdLastCheck
     uint16_t run_num;
 };
 
+// Boyer-Moore (bm)字符串搜索算法数据结构的设计
 struct PatternMatchData
 {
     // FIXIT-L wasting some memory here:
@@ -53,7 +54,9 @@ struct PatternMatchData
     // data above this point is for framework use only!
     //----------------------------------------------------------------
 
+    // 模式串内容
     const char* pattern_buf; // app layer pattern to match on
+    // 模式串长度
     unsigned pattern_size;   // size of app layer pattern
 
     int offset;              // pattern search start offset
@@ -62,7 +65,7 @@ struct PatternMatchData
     enum
     {
         NEGATED  = 0x01,
-        NO_CASE  = 0x02,
+        NO_CASE  = 0x02,    // 大小写是否敏感
         RELATIVE = 0x04,
         LITERAL  = 0x08,
         FAST_PAT = 0x10,

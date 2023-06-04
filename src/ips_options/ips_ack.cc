@@ -78,6 +78,7 @@ bool TcpAckOption::operator==(const IpsOption& ips) const
     return ( config == rhs.config );
 }
 
+// IpsOptions 中的 ack 检测，检查包的 ack 项，如果存在，则返回 MACTH
 IpsOption::EvalStatus TcpAckOption::eval(Cursor&, Packet* p)
 {
     RuleProfile profile(tcpAckPerfStats);

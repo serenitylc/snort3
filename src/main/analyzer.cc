@@ -203,6 +203,7 @@ static bool process_packet(Packet* p)
     {
         clear_file_data();
         // return incomplete status if the main hook indicates not all work was done
+        // 数据包检测功能入口  在 Analyzer::set_main_hook 中进行了初始化，实际对应函数为 DetectionEngine::inspect / snort_ignore / snort_log 之一
         if (!main_hook(p))
             return false;
     }
@@ -412,9 +413,9 @@ void Analyzer::process_daq_pkt_msg(DAQ_Msg_h msg, bool retry)
 
     p->daq_msg = msg;
     p->daq_instance = daq_instance;
-
+    // 数据包解析
     PacketManager::decode(p, pkthdr, daq_msg_get_data(msg), daq_msg_get_data_len(msg), false, retry);
-
+    // 数据包处理
     if (process_packet(p))
     {
         post_process_daq_pkt_msg(p);
@@ -749,6 +750,7 @@ void Analyzer::operator()(Swapper* ps, uint16_t run_num)
         STHREAD_TYPE_PACKET, get_instance_id());
 
     SFDAQ::set_local_instance(daq_instance);
+    // 添加任务到队列
     set_state(State::INITIALIZED);
 
     Profiler::start();
@@ -892,6 +894,7 @@ DAQ_RecvStatus Analyzer::process_messages()
     return rstat;
 }
 
+// 当 analyze 被开启后，snort 将正式进入数据包捕获分析的工作状态
 void Analyzer::analyze()
 {
     while (!exit_requested)
@@ -911,6 +914,7 @@ void Analyzer::analyze()
         // Receive and process a batch of messages.  Evaluate the receive status after processing
         // the returned messages to determine if we should immediately continue, take the opportunity
         // to deal with some house cleaning work, or terminate the analyzer thread.
+        // 包处理入口函数
         DAQ_RecvStatus rstat = process_messages();
         if (rstat != DAQ_RSTAT_OK && rstat != DAQ_RSTAT_WOULD_BLOCK)
         {

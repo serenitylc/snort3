@@ -38,6 +38,7 @@
 
 using namespace snort;
 
+// 快速模式配置
 FastPatternConfig::FastPatternConfig()
 {
     search_api = MpseManager::get_search_api("ac_bnfa");

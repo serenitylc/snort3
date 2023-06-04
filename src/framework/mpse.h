@@ -44,6 +44,7 @@ struct MpseApi;
 struct MpseBatch;
 struct ProfileStats;
 
+// 多模匹配搜索
 class SO_PUBLIC Mpse
 {
 public:

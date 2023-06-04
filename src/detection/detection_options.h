@@ -115,7 +115,8 @@ struct detection_option_tree_node_t : public detection_option_tree_bud_t
     option_type_t option_type;
 };
 
-struct detection_option_tree_root_t : public detection_option_tree_bud_t
+// 规则容器，类似 suricata 里的 Signature_
+struct detection_option_tree_root_t
 {
     RuleLatencyState* latency_state;
 

@@ -610,6 +610,7 @@ static RuleTreeNode* transfer_rtn(RuleTreeNode* tmpl)
 
 // Conditionally removes duplicate OTN. Keeps duplicate with
 // higher revision.  If revision is the same, keeps newest rule.
+// 合并重复规则节点
 static int mergeDuplicateOtn(
     SnortConfig* sc, OptTreeNode* otn_cur,
     OptTreeNode* otn_new, RuleTreeNode* rtn_new)
@@ -1195,6 +1196,7 @@ void parse_rule_close(SnortConfig* sc, RuleTreeNode& rtn, OptTreeNode* otn)
     else if ( is_builtin(otn->sigInfo.gid) )
     {
         if ( otn->num_detection_opts )
+            // 内建规则不支持检测选项
             ParseError("%u:%u builtin rules do not support detection options",
                 otn->sigInfo.gid, otn->sigInfo.sid);
 
@@ -1301,6 +1303,16 @@ void parse_rule_process_rtn(RuleTreeNode* rtn)
  *    a)do this for src and dst port
  *    b)add the rule index/id to the portobject(s)
  *    c)if the rule is bidir add the rule and port-object to both src and dst tables
+ */
+/* 完成将规则添加到端口表（每条规则都有规则头、协议，以此进行归类），将规则归类的原则是：
+ * 1）找到此规则应属于的表(src/dst/any-any tcp,udp,icmp,ip or nocontent)
+ * 2）找到 sid:gid 键值对的索引
+ * 3）将所有无 content 选项的规则添加到单个无 content 选项端口对象，端口无关紧要，因此将其放入 any-any port object
+ * 4）如果它是包含 content 的 any-any(源和目的端口都是any)规则，则添加到 any-any port object
+ * 5）查找我们是否有定义了这些端口的端口对象，如果是这样，则获取它，否则创建它。
+ *      a）为src和dst端口执行此操作
+ *      b）将规则索引/id添加到portobject（s）
+ *      c）如果规则是双向的，则将规则和端口对象添加到src和dst表中
  */
 int parse_rule_finish_ports(SnortConfig* sc, RuleTreeNode* rtn, OptTreeNode* otn)
 {

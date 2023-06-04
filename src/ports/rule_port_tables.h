@@ -36,6 +36,7 @@ struct PortProto
     ~PortProto();
 };
 
+// 用于管理所有端口表的数据结构
 struct RulePortTables
 {
     PortProto ip;

@@ -482,6 +482,7 @@ struct RuleParseState
     bool tbd = false;
 };
 
+// 基于状态机实现，解析完规则文本后，获得对应的 FsmAction 以及 tok 本身，然后调用 exec，进行规则树的构造
 static bool exec(
     FsmAction act, string& tok,
     RuleParseState& rps, SnortConfig* sc)
@@ -612,6 +613,7 @@ static int get_escape(const string& s)
     return 1;      // escape, option goes to "
 }
 
+// 这里传入的 istream 对象，就是解析完的规则文本信息
 void parse_stream(istream& is, SnortConfig* sc)
 {
     string tok;
@@ -622,9 +624,11 @@ void parse_stream(istream& is, SnortConfig* sc)
     const char* punct = fsm[0].punct;
     RuleParseState rps;
 
+    // 调用 get_token 函数，对规则文本进行简单的解析
     while ( (type = get_token(is, tok, punct, esc)) )
     {
         ++tokens;
+        // 调用 get_state，返回的 State 对象包含了对应的 FsmAciton 信息，然后调用 exec，进行对应的处理
         const State* s = get_state(num, type, tok);
 
 #ifdef TRACER

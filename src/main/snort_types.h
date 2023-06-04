@@ -46,6 +46,10 @@ typedef uint16_t Port;
 #define NORETURN_ASSERT [[noreturn]]
 #endif
 
+/* 全局符号介入（Global Symbol Interpose）：
+ * GCC 编译源代码文件的 visibility 默认属性是 public，即导出所有符号
+ * 使用 GCC 的 C++ visibility 支持来控制共享文件的导出符号，并使用 -fvisibility=hidden 参数编译每一个源代码文件
+ */
 #ifndef SO_PUBLIC
 #if defined _WIN32 || defined __CYGWIN__
 #  ifdef __GNUC__
